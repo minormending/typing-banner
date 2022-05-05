@@ -19,9 +19,6 @@ String cursorCharacter = "█";
 int lastCursorBlink = 0;
 int cursorRefreshMs = 300;
 
-import gifAnimation.*;
-GifMaker gif;
-
 void settings() {
   size(width, height);
 }
@@ -37,22 +34,19 @@ void setup() {
   fill(textColor);
 
   screens[0][0] = "Welcome!";
-  screens[0][1] = "I'm Kevin Ramdath.";
+  screens[0][1] = "I'm FirstName LastName.";
 
-  screens[1][0] = "I'm a Software Engineer";
-  screens[1][1] = "working in NYC.";
+  screens[1][0] = "I'm a JobTitle or Hobby";
+  screens[1][1] = "working in Place.";
 
   screens[2][0] = "Let's build something together,";
   screens[2][1] = "hire me for your next project!";
 
-  screens[3][0] = "";
-  screens[3][1] = "hello@kevinramdath.com";
+  screens[3][0] = "@TwitterHandle";
+  screens[3][1] = "Email@Address.com";
 
   //String[] fontList = PFont.list();
   //printArray(fontList);
-
-  gif = new GifMaker(this, "out.gif");
-  gif.setRepeat(0);
 }
 
 void draw() {
@@ -81,34 +75,19 @@ void draw() {
       deleteScreenContents = true;
       lineCursor = max(currentScreen[0].length(), currentScreen[1].length()) - 1;
       delay(1500);
-      if (gif != null) {
-        gif.setDelay(1000);
-      }
     }
 
     if (lineCursor < 0) {
       lineCursor = 1;
       deleteScreenContents = false;
       delay(1000);
-      if (gif != null) {
-        gif.setDelay(700);
-      }
+
       screenCursor += 1;
       if (screenCursor >= screens.length) { // done showing all screens
         screenCursor = 0; // go back to screen 0
-
-        if (gif != null) {
-          gif.finish();
-          gif = null;
-        }
       }
       currentScreen = screens[screenCursor];
     }
-  }
-
-  if (gif != null) {
-    gif.setDelay(50);
-    gif.addFrame();
   }
 }
 

@@ -19,9 +19,6 @@ String cursorCharacter = "█";
 int lastCursorBlink = 0;
 int cursorRefreshMs = 300;
 
-import gifAnimation.*;
-GifMaker gif;
-
 void settings() {
   size(width, height);
 }
@@ -50,9 +47,6 @@ void setup() {
 
   //String[] fontList = PFont.list();
   //printArray(fontList);
-
-  gif = new GifMaker(this, "out.gif");
-  gif.setRepeat(0);
 }
 
 void draw() {
@@ -81,34 +75,19 @@ void draw() {
       deleteScreenContents = true;
       lineCursor = max(currentScreen[0].length(), currentScreen[1].length()) - 1;
       delay(1500);
-      if (gif != null) {
-        gif.setDelay(1000);
-      }
     }
 
     if (lineCursor < 0) {
       lineCursor = 1;
       deleteScreenContents = false;
       delay(1000);
-      if (gif != null) {
-        gif.setDelay(700);
-      }
+
       screenCursor += 1;
       if (screenCursor >= screens.length) { // done showing all screens
         screenCursor = 0; // go back to screen 0
-
-        if (gif != null) {
-          gif.finish();
-          gif = null;
-        }
       }
       currentScreen = screens[screenCursor];
     }
-  }
-
-  if (gif != null) {
-    gif.setDelay(50);
-    gif.addFrame();
   }
 }
 

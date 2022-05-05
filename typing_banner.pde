@@ -10,7 +10,7 @@ int screenLine1Y = int(height / 2); // 2nd line is true center of the screen
 // [j][k] where j = number of screens and k = lines per screen
 String[][] screens = new String[4][2];
 int screenCursor = 0, lineCursor = 0;
-boolean clearScreen = false;
+boolean deleteScreenContents = false;
 int screenRefreshMs = 100;
 int lastScreenChange = 0;
 String onScreenLine1 = "", onScreenLine2 = "";
@@ -20,7 +20,7 @@ int lastCursorBlink = 0;
 int cursorRefreshMs = 300;
 
 import gifAnimation.*;
-GifMaker g;
+GifMaker gif;
 
 void settings() {
   size(width, height);
@@ -50,8 +50,9 @@ void setup() {
 
   //String[] fontList = PFont.list();
   //printArray(fontList);
-  g = new GifMaker(this, "out.gif");
-  g.setRepeat(0);
+
+  gif = new GifMaker(this, "out.gif");
+  gif.setRepeat(0);
 }
 
 void draw() {
@@ -60,87 +61,98 @@ void draw() {
   // current lines of text on the screen
   String[] currentScreen = screens[screenCursor];
 
-  int maxScreenLength = currentScreen[0].length() + currentScreen[1].length();
-  if (lineCursor > maxScreenLength) {
-    // we've already written the entire screen
-    clearScreen = true;
-    lineCursor = max(currentScreen[0].length(), currentScreen[1].length()) - 1;
-    delay(1500);
-  }
-
-  if (lineCursor < 0) {
-    lineCursor = 1;
-    clearScreen = false;
-
-    screenCursor += 1;
-    if (screenCursor >= screens.length) { // done showing all screens
-      screenCursor = 0; // go back to screen 0
-      counter = -1;
-      g.finish();
-    }
-    currentScreen = screens[screenCursor];
-    delay(1000);
-  }
-
-  if (clearScreen) {
+  if (deleteScreenContents) {
     // clear the screen from "lineCursor" down to 0 for both lines
-    updateCurrentScreenForDeletion(currentScreen);
+    updateCurrentScreenVarsForDeletion(currentScreen);
   } else {
     // show the current screen.
-    updateCurrentScreenForWriting(currentScreen);
+    updateCurrentScreenVarsForWriting(currentScreen);
   }
 
   text(onScreenLine1, screenLine0X, screenLine0Y);
   text(onScreenLine2, screenLine1X, screenLine1Y);
 
-  blinkCursor(clearScreen);
-  updateLineCursor(clearScreen);
+  blinkCursor(deleteScreenContents);
 
-  if (counter != -1) {
-    g.setDelay(50);
-    g.addFrame();
-    counter += 1;
+  if (moveLineCursor(deleteScreenContents)) {
+    int maxScreenLength = currentScreen[0].length() + currentScreen[1].length();
+    if (lineCursor > maxScreenLength) {
+      // we've already written the entire screen
+      deleteScreenContents = true;
+      lineCursor = max(currentScreen[0].length(), currentScreen[1].length()) - 1;
+      delay(1500);
+      if (gif != null) {
+        gif.setDelay(1000);
+      }
+    }
+
+    if (lineCursor < 0) {
+      lineCursor = 1;
+      deleteScreenContents = false;
+      delay(1000);
+      if (gif != null) {
+        gif.setDelay(700);
+      }
+      screenCursor += 1;
+      if (screenCursor >= screens.length) { // done showing all screens
+        screenCursor = 0; // go back to screen 0
+
+        if (gif != null) {
+          gif.finish();
+          gif = null;
+        }
+      }
+      currentScreen = screens[screenCursor];
+    }
+  }
+
+  if (gif != null) {
+    gif.setDelay(50);
+    gif.addFrame();
   }
 }
 
-void updateCurrentScreenForWriting(String[] currentScreen) {
+void updateCurrentScreenVarsForWriting(String[] currentScreen) {
   if (lineCursor > currentScreen[0].length()) {
-      onScreenLine1 = currentScreen[0];
-      onScreenLine2 = currentScreen[1].substring(0, lineCursor - currentScreen[0].length());
-    } else {
-      onScreenLine1 = currentScreen[0].substring(0, lineCursor);
-      onScreenLine2 = "";
-    }
+    onScreenLine1 = currentScreen[0];
+    onScreenLine2 = currentScreen[1].substring(0, lineCursor - currentScreen[0].length());
+  } else {
+    onScreenLine1 = currentScreen[0].substring(0, lineCursor);
+    onScreenLine2 = "";
+  }
 }
 
-void updateCurrentScreenForDeletion(String[] currentScreen) {
+void updateCurrentScreenVarsForDeletion(String[] currentScreen) {
   if (lineCursor >= currentScreen[0].length()) {
-      onScreenLine1 = currentScreen[0];
-    } else {
-      onScreenLine1 = currentScreen[0].substring(0, lineCursor);
-    }
-    if (lineCursor >= currentScreen[1].length()) {
-      onScreenLine2 = currentScreen[1];
-    } else {
-      onScreenLine2 = currentScreen[1].substring(0, lineCursor);
-    }
+    onScreenLine1 = currentScreen[0];
+  } else {
+    onScreenLine1 = currentScreen[0].substring(0, lineCursor);
+  }
+  if (lineCursor >= currentScreen[1].length()) {
+    onScreenLine2 = currentScreen[1];
+  } else {
+    onScreenLine2 = currentScreen[1].substring(0, lineCursor);
+  }
 }
 
-void blinkCursor(boolean actionDelete) {
+boolean blinkCursor(boolean actionDelete) {
   if (millis() - lastCursorBlink > cursorRefreshMs) {
     drawCursor(actionDelete);
     lastCursorBlink = millis();
+    return true;
   }
+  return false;
 }
 
-void updateLineCursor(boolean actionDelete) {
+boolean moveLineCursor(boolean actionDelete) {
   if (millis() - lastScreenChange > screenRefreshMs) {
     lineCursor = lineCursor + (actionDelete ? -1 : 1); // show 1 more or less character next frame
     lastScreenChange = millis();
+    return true;
   }
+  return false;
 }
 
-int counter = 0;
 void drawCursor(boolean allLines) {
   if (allLines) {
     float maxTextWidth = max(textWidth(onScreenLine1), textWidth(onScreenLine2));

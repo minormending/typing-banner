@@ -34,16 +34,16 @@ void setup() {
   fill(textColor);
 
   screens[0][0] = "Welcome!";
-  screens[0][1] = "I'm Kevin Ramdath.";
+  screens[0][1] = "I'm FirstName LastName.";
 
-  screens[1][0] = "I'm a Software Engineer";
-  screens[1][1] = "working in NYC.";
+  screens[1][0] = "I'm a JobTitle or Hobby";
+  screens[1][1] = "working in Place.";
 
   screens[2][0] = "Let's build something together,";
   screens[2][1] = "hire me for your next project!";
 
-  screens[3][0] = "";
-  screens[3][1] = "hello@kevinramdath.com";
+  screens[3][0] = "@TwitterHandle";
+  screens[3][1] = "Email@Address.com";
 
   //String[] fontList = PFont.list();
   //printArray(fontList);
